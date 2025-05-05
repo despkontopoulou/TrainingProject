@@ -124,19 +124,3 @@ fun InputField(
     }
 
 }
-@Preview(showBackground=true)
-@Composable
-fun PreviewInputField(){
-    var text by remember { mutableStateOf("")}
-    val isValid= text.length >=5
-    Box(modifier=Modifier.padding(16.dp)){
-        InputField(
-            value=text,
-            onValueChange = {text=it},
-            label="Password",
-            placeholder="Enter password",
-            isPassword = true,
-            isValid= isValid
-        )
-    }
-}

@@ -15,9 +15,12 @@ import com.despkontopoulou.trainingproject.ui.theme.Black
 import com.despkontopoulou.trainingproject.ui.theme.White
 
 @Composable
-fun TitleBar(title: String){
+fun TitleBar(
+    title: String,
+    modifier: Modifier
+){
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Black)
             .padding(vertical = 29.dp),
@@ -30,10 +33,4 @@ fun TitleBar(title: String){
             fontSize = 24.sp
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TitleBarPreview(){
-    TitleBar(title= "Sign In")
 }
