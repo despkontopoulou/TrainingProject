@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,14 +46,17 @@ fun InputField(
     label: String,
     placeholder: String,
     isPassword: Boolean = false,
-    isValid: Boolean
+    isValid: Boolean,
+    onInfoClick: () -> Unit
 ){
     var passwordVisible by remember {mutableStateOf(false)}
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             verticalAlignment =  Alignment.CenterVertically,
-            horizontalArrangement= Arrangement.spacedBy(4.dp),
-            modifier = Modifier.padding(bottom=4.dp)
+            horizontalArrangement= Arrangement.Start,
+            modifier = Modifier
+                .padding(bottom=4.dp)
+                .fillMaxWidth()
         ){
             Text(
                 text=label,
@@ -57,12 +64,21 @@ fun InputField(
                 fontSize=16.sp,
                 fontWeight = FontWeight.Bold
             )
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "Info",
-                tint=Green,
-                modifier=Modifier.size(18.dp)
-            )
+            Spacer(modifier=Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(White, CircleShape)
+                    .clickable { onInfoClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint= Green,
+                    modifier= Modifier.fillMaxSize()
+                )
+            }
         }
         BasicTextField(
             value = value,
@@ -106,7 +122,7 @@ fun InputField(
                             imageVector = Icons.Default.Warning,
                             contentDescription = "Invalid input",
                             tint=Red,
-                            modifier=Modifier.size(20.dp)
+                            modifier=Modifier.size(14.dp)
                         )
                     }
 

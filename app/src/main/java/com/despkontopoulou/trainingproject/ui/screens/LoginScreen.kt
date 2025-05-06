@@ -1,5 +1,7 @@
 package com.despkontopoulou.trainingproject.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -9,28 +11,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.despkontopoulou.trainingproject.Login.ApiClient
+import com.despkontopoulou.trainingproject.Login.LoginRequest
+import com.despkontopoulou.trainingproject.ui.components.ErrorPopup
+import com.despkontopoulou.trainingproject.ui.components.InfoPopup
 import com.despkontopoulou.trainingproject.ui.components.InputField
 import com.despkontopoulou.trainingproject.ui.components.SignInButton
 import com.despkontopoulou.trainingproject.ui.components.TitleBar
 import com.despkontopoulou.trainingproject.ui.theme.LightBlack
+import com.despkontopoulou.trainingproject.utils.ValidationUtils
+import kotlinx.coroutines.launch
 
+private const val TAG = "LoginScreen"
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(onSignIn: (String,String) -> Unit = { _,_ -> }){
     var userId by remember {mutableStateOf("")}
     var password by remember{ mutableStateOf("")}
+    var showError by remember{ mutableStateOf(false)}
+    var showUserIdInfo by remember { mutableStateOf(false) }
+    var showPasswordInfo by remember { mutableStateOf(false)}
+    val userIdInvalid = userId.isNotEmpty() && !ValidationUtils.userIdRegex.matches(userId)
+    val passwordInvalid = password.isNotEmpty() && !ValidationUtils.passwordRegex.matches(password)
+    val isFormValid = ValidationUtils.userIdRegex.matches(userId) && ValidationUtils.passwordRegex.matches(password)
 
-    val userIdInvalid = userId.isNotEmpty() && !userId.contains("TH")
-    val passwordInvalid = password.isNotEmpty() && password.length < 5
-    val isFormValid = userId.contains("TH") && password.length >= 5
-
+    val scope = rememberCoroutineScope()
+    val context= LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(LightBlack)
     ){
+        if (showUserIdInfo) {
+        InfoPopup(
+            message = "It must start with 2 capital letters and then 4 numbers",
+            onDismiss = { showUserIdInfo = false }
+        )
+    }
+        if (showPasswordInfo) {
+            InfoPopup(
+                message = "At least 8 characters (2 uppercase, 3 lowercase, 1 special, 2 numbers)",
+                onDismiss = { showPasswordInfo = false }
+            )
+        }
+        if(showError){
+            ErrorPopup { showError=false }
+        }
         TitleBar(
             title="Sign In",
             modifier= Modifier.statusBarsPadding()
@@ -50,7 +80,8 @@ fun LoginScreen(){
                 label = "UserId",
                 placeholder = "Enter your UserID",
                 isPassword = false,
-                isValid = !userIdInvalid
+                isValid = !userIdInvalid,
+                onInfoClick={showUserIdInfo=true}
             )
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -61,13 +92,35 @@ fun LoginScreen(){
                 label = "Password",
                 placeholder = "Enter your password",
                 isPassword = true,
-                isValid = !passwordInvalid
+                isValid = !passwordInvalid,
+                onInfoClick={showPasswordInfo=true}
+
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             SignInButton(
-                onClick = { /* Handle sign-in */ },
+                onClick = {
+                    scope.launch {
+                        try {
+                            val response = ApiClient.authApi.login(
+                                LoginRequest(UserName = userId, Password = password)
+                            )
+                            // Success: you can store response.access_token, then:
+                            Log.d(TAG, "Login response:\n$response")
+                            Toast.makeText(
+                                context,
+                                "Token: ${response.access_token}",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            onSignIn(userId, password)
+                        } catch (e: Exception) {
+                            // Failure: show your ErrorPopup
+                            showError = true
+                        }
+                    }
+                },
                 enabled = isFormValid,
                 modifier = Modifier
                     .padding(bottom = 29.dp)
