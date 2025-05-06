@@ -1,4 +1,4 @@
-package com.despkontopoulou.trainingproject.Login
+package com.despkontopoulou.trainingproject.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,12 +15,13 @@ object ApiClient {
         .addInterceptor(logging)
         .build()
 
-    val authApi: AuthApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AuthApi::class.java)
-    }
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val authApi: AuthApi = retrofit.create(AuthApi::class.java)
+    val booksApi: BooksApi = retrofit.create(BooksApi::class.java)
+
 }

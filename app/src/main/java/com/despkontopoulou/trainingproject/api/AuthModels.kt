@@ -1,4 +1,4 @@
-package com.despkontopoulou.trainingproject.Login
+package com.despkontopoulou.trainingproject.api
 
 data class LoginRequest(
     val UserName: String,

@@ -1,4 +1,4 @@
-package com.despkontopoulou.trainingproject.Login
+package com.despkontopoulou.trainingproject.api
 
 import retrofit2.http.Body
 import retrofit2.http.POST

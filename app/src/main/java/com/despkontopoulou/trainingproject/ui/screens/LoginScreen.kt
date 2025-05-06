@@ -15,8 +15,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.despkontopoulou.trainingproject.Login.ApiClient
-import com.despkontopoulou.trainingproject.Login.LoginRequest
+import com.despkontopoulou.trainingproject.api.ApiClient
+import com.despkontopoulou.trainingproject.api.LoginRequest
 import com.despkontopoulou.trainingproject.ui.components.ErrorPopup
 import com.despkontopoulou.trainingproject.ui.components.InfoPopup
 import com.despkontopoulou.trainingproject.ui.components.InputField
@@ -29,12 +29,14 @@ import kotlinx.coroutines.launch
 private const val TAG = "LoginScreen"
 
 @Composable
-fun LoginScreen(onSignIn: (String,String) -> Unit = { _,_ -> }){
+fun LoginScreen(onSignIn: (userId: String, password: String, token: String) -> Unit) {
     var userId by remember {mutableStateOf("")}
     var password by remember{ mutableStateOf("")}
+
     var showError by remember{ mutableStateOf(false)}
     var showUserIdInfo by remember { mutableStateOf(false) }
     var showPasswordInfo by remember { mutableStateOf(false)}
+
     val userIdInvalid = userId.isNotEmpty() && !ValidationUtils.userIdRegex.matches(userId)
     val passwordInvalid = password.isNotEmpty() && !ValidationUtils.passwordRegex.matches(password)
     val isFormValid = ValidationUtils.userIdRegex.matches(userId) && ValidationUtils.passwordRegex.matches(password)
@@ -106,7 +108,6 @@ fun LoginScreen(onSignIn: (String,String) -> Unit = { _,_ -> }){
                             val response = ApiClient.authApi.login(
                                 LoginRequest(UserName = userId, Password = password)
                             )
-                            // Success: you can store response.access_token, then:
                             Log.d(TAG, "Login response:\n$response")
                             Toast.makeText(
                                 context,
@@ -114,9 +115,8 @@ fun LoginScreen(onSignIn: (String,String) -> Unit = { _,_ -> }){
                                 Toast.LENGTH_LONG
                             ).show()
 
-                            onSignIn(userId, password)
+                            onSignIn(userId, password, response.access_token)
                         } catch (e: Exception) {
-                            // Failure: show your ErrorPopup
                             showError = true
                         }
                     }
